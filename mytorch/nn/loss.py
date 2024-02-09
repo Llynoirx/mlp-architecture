@@ -2,11 +2,18 @@ import numpy as np
 
 
 class MSELoss:
+    """
+    Mean Squared Error;  often used to quantify the prediction error for regression problems
+
+    Regression is a problem of predicting a real-valued label given an unlabeled example. 
+    Estimating house price based on features such as area, location, the number of bedrooms 
+    and so on is a classic regression problem
+    """
 
     def forward(self, A, Y):
         """
         Calculate the Mean Squared error
-        :param A: Output of the model of shape (N, C)
+        :param A: Output of the model of shape (N, C) 
         :param Y: Ground-truth values of shape (N, C)
         :Return: MSE Loss(scalar)
 
@@ -14,19 +21,18 @@ class MSELoss:
 
         self.A = A
         self.Y = Y
-        self.N = None  # TODO
-        self.C = None  # TODO
-        se = None  # TODO
-        sse = None  # TODO
-        mse = None  # TODO
+        self.N, self.C = A.shape
+        se = (A-Y)*(A-Y)
+        sse = np.dot(np.dot(np.ones(self.N), se), np.ones((self.C)))  # l_N^T · se · l_C
+        mse = sse/np.dot(self.N,self.C)
 
-        return NotImplemented
+        return mse
 
     def backward(self):
 
-        dLdA = None
+        dLdA = 2*(self.A-self.Y)/np.dot(self.N,self.C)
 
-        return NotImplemented
+        return dLdA
 
 
 class CrossEntropyLoss:
@@ -43,8 +49,7 @@ class CrossEntropyLoss:
         """
         self.A = A
         self.Y = Y
-        N = None  # TODO
-        C = None  # TODO
+        self.N, self.C = A.shape
 
         Ones_C = None  # TODO
         Ones_N = None  # TODO
