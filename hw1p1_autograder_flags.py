@@ -23,7 +23,7 @@ DEBUG_AND_GRADE_MLP4_flag = True
 # flags for loss.py
 
 DEBUG_AND_GRADE_MSELOSS_flag = True
-DEBUG_AND_GRADE_CROSSENTROPYLOSS_flag = False
+DEBUG_AND_GRADE_CROSSENTROPYLOSS_flag = True
 
 
 # flags for optim.py

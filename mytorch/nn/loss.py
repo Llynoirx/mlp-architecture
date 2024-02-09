@@ -3,7 +3,7 @@ import numpy as np
 
 class MSELoss:
     """
-    Mean Squared Error;  often used to quantify the prediction error for regression problems
+    Mean Squared Error; often used to quantify the prediction error for regression problems
 
     Regression is a problem of predicting a real-valued label given an unlabeled example. 
     Estimating house price based on features such as area, location, the number of bedrooms 
@@ -23,7 +23,8 @@ class MSELoss:
         self.Y = Y
         self.N, self.C = A.shape
         se = (A-Y)*(A-Y)
-        sse = np.dot(np.dot(np.ones(self.N), se), np.ones((self.C)))  # l_N^T · se · l_C
+        # (note: for 1D arr, if on LHS of np.dot => row vec; RHS =>col vec, so don't need to explicitly use np.transpose)
+        sse = np.dot(np.dot(np.ones(self.N), se), np.ones(self.C))  # l_N^T · se · l_C 
         mse = sse/np.dot(self.N,self.C)
 
         return mse
@@ -36,6 +37,9 @@ class MSELoss:
 
 
 class CrossEntropyLoss:
+    """
+    one of the most commonly used loss function for probability-based classification problems 
+    """
 
     def forward(self, A, Y):
         """
@@ -51,18 +55,18 @@ class CrossEntropyLoss:
         self.Y = Y
         self.N, self.C = A.shape
 
-        Ones_C = None  # TODO
-        Ones_N = None  # TODO
+        Ones_C = np.ones(self.C)
+        Ones_N = np.ones(self.N)
 
-        self.softmax = None  # TODO
-        crossentropy = None  # TODO
-        sum_crossentropy = None  # TODO
-        L = sum_crossentropy / N
+        self.softmax = np.exp(A) / np.sum(np.exp(A), axis=1, keepdims=True)
+        crossentropy = np.dot((-Y * np.log(self.softmax)), Ones_C)
+        sum_crossentropy = np.dot(Ones_N, crossentropy)
+        L = sum_crossentropy / self.N
 
-        return NotImplemented
+        return L
 
     def backward(self):
 
-        dLdA = None  # TODO
+        dLdA = (self.softmax - self.Y)/self.N
 
-        return NotImplemented
+        return dLdA
