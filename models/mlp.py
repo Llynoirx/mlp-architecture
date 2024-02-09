@@ -129,7 +129,11 @@ class MLP4:
         """
 
         # List of Hidden and activation Layers in the correct order
-        self.layers = None  # TODO
+        self.layers = [Linear(2, 4), ReLU(),
+                       Linear(4, 8), ReLU(),
+                       Linear(8, 8), ReLU(),
+                       Linear(8, 4), ReLU(),
+                       Linear(4, 2), ReLU()]
 
         self.debug = debug
 
@@ -139,20 +143,19 @@ class MLP4:
         """
 
         if self.debug:
-
             self.A = [A]
 
         L = len(self.layers)
 
         for i in range(L):
 
-            A = None  # TODO
+            A = self.layers[i].forward(A)
 
             if self.debug:
 
                 self.A.append(A)
 
-        return NotImplemented
+        return A
 
     def backward(self, dLdA):
         """
@@ -160,17 +163,16 @@ class MLP4:
         """
 
         if self.debug:
-
             self.dLdA = [dLdA]
 
         L = len(self.layers)
 
         for i in reversed(range(L)):
 
-            dLdA = None  # TODO
+            dLdA = self.layers[i].backward(dLdA)
 
             if self.debug:
 
                 self.dLdA = [dLdA] + self.dLdA
 
-        return NotImplemented
+        return None
