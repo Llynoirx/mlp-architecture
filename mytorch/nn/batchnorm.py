@@ -52,7 +52,7 @@ class BatchNorm1d:
         learnable parameter vectors trained during forward propagation. By default, the elements of
         E[Z] are set to 0 and the elements of Var[Z] are set to 1.
         
-        - During inference, the learnt mean running M E[Z] and variance running V V ar[Z] over the
+        - During inference, the learnt mean running M E[Z] and variance running_V Var[Z] over the
         entire training dataset are used to normalize Z.
 
         """
@@ -79,18 +79,24 @@ class BatchNorm1d:
 
     def backward(self, dLdBZ):
         """
-        takes input dLdBZ, how changes in BN layer output affects loss, computes and stores
+        takes input dLdBZ (DL/DZ-tilde), how changes in BN layer output affects loss, computes and stores
         the necessary gradients dLdBW, dLdBb to train learnable parameters BW and Bb. Returns
         dLdZ, how the changes in BN layer input Z affect loss L for downstream computation.
+
+        Let L be the training loss over the batch and dLdZ be the derivative of the loss with 
+        respect to the output of the BatchNorm transformation for Z
+
+        Bb= beta, BW = gamma, NZ = Z-hat, BZ = Z-tilde
         """
 
-        self.dLdBW = None  # TODO
-        self.dLdBb = None  # TODO
+        self.dLdBb = np.sum(dLdBZ, axis=0, keepdims=True) # dL/dbeta
+        self.dLdBW =  np.sum((dLdBZ*self.NZ), axis=0, keepdims=True) # dL/dgamma
 
-        dLdNZ = None  # TODO
-        dLdV = None  # TODO
-        dLdM = None  # TODO
+        dLdNZ = dLdBZ * self.BW  # dL/dZ-hat
+        dLdV = (-1/2) * np.sum((dLdNZ * (self.Z - self.M) * (self.V + self.eps)**(-3/2)), axis=0, keepdims=True)  # dL/DVar
+        dNZdM = -(self.V + self.eps)**(-1/2) - ((1/2)*(self.Z - self.M) * (self.V + self.eps)**(-3/2) * ((-2/self.N)*np.sum((self.Z - self.M), axis=0, keepdims=True)))  # dZ-hat/dmu
+        dLdM =   np.sum((dLdNZ * dNZdM), axis=0, keepdims=True) # dL/Dmu
 
-        dLdZ = None  # TODO
+        dLdZ = dLdNZ*[(self.V + self.eps)**(-1/2)] + dLdV*[(2/self.N)*(self.Z - self.M)] + (1/self.N)*dLdM
 
         return dLdZ
